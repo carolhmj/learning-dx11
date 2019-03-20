@@ -66,7 +66,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Create the color shader object.
-	m_TextureShader = new TextureShaderClass;
+	m_TextureShader = new ShaderClass;
 	if (!m_TextureShader)
 	{
 		return false;

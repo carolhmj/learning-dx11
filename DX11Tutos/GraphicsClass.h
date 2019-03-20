@@ -5,7 +5,7 @@
 #include "D3DClass.h"
 #include "CameraClass.h"
 #include "ModelClass.h"
-#include "TextureShaderClass.h"
+#include "ShaderClass.h"
 
 
 /////////////
@@ -37,5 +37,5 @@ private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
 	ModelClass* m_Model;
-	TextureShaderClass* m_TextureShader;
+	ShaderClass* m_TextureShader;
 };
