@@ -29,6 +29,7 @@ private:
 	{
 		XMFLOAT3 position;
 		XMFLOAT2 texture;
+		XMFLOAT3 normal;
 	};
 
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;

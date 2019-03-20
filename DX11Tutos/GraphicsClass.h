@@ -6,6 +6,7 @@
 #include "CameraClass.h"
 #include "ModelClass.h"
 #include "ShaderClass.h"
+#include "LightClass.h"
 
 
 /////////////
@@ -31,11 +32,12 @@ public:
 	bool Frame();
 
 private:
-	bool Render();
+	bool Render(float);
 
 private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
 	ModelClass* m_Model;
-	ShaderClass* m_TextureShader;
+	LightClass* m_Light;
+	ShaderClass* m_Shader;
 };
