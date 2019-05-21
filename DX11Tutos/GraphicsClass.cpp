@@ -59,7 +59,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "owl.tga");
+	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "../DX11Tutos/cube.txt", "../DX11Tutos/owl.tga");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -89,9 +89,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 	// Initialize the light object.
-	m_Light->SetDiffuseColor(0.0f, 1.0f, 0.0f, 1.0f);
-	m_Light->SetDirection(-1.0f, 0.0f, 0.0f);
-
+	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light->SetSpecularPower(32.0f);
 
 	return true;
 }
@@ -145,7 +147,7 @@ bool GraphicsClass::Frame()
 	static float rotation = 0.0f;
 
 	//update rotation each frame
-	rotation += XM_PI * 0.01f;
+	rotation += XM_PI * 0.005f;
 	if (rotation > 2*XM_PI) {
 		rotation = 0;
 	}
@@ -184,7 +186,7 @@ bool GraphicsClass::Render(float rotation)
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 
 	// Render the model using the color shader.
-	result = m_Shader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), rotatedWorld, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDiffuseColor(), m_Light->GetDirection());
+	result = m_Shader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), rotatedWorld, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 	if (!result)
 	{
 		return false;
