@@ -8,7 +8,7 @@
 using namespace DirectX;
 using namespace std;
 
-class ShaderClass
+class LightShaderClass
 {
 private:
 	struct MatrixBufferType
@@ -32,9 +32,9 @@ private:
 	};
 
 public:
-	ShaderClass();
-	ShaderClass(const ShaderClass&);
-	~ShaderClass();
+	LightShaderClass();
+	LightShaderClass(const LightShaderClass&);
+	~LightShaderClass();
 
 	bool Initialize(ID3D11Device*, HWND);
 	void Shutdown();

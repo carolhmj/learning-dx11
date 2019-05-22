@@ -4,9 +4,8 @@
 //////////////
 #include "D3DClass.h"
 #include "CameraClass.h"
-#include "ModelClass.h"
-#include "ShaderClass.h"
-#include "LightClass.h"
+#include "TextureShaderClass.h"
+#include "BitmapClass.h"
 
 
 /////////////
@@ -15,7 +14,7 @@
 const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1f;
+const float SCREEN_NEAR = 0.00001f;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: GraphicsClass
@@ -37,7 +36,7 @@ private:
 private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
-	ModelClass* m_Model;
-	LightClass* m_Light;
-	ShaderClass* m_Shader;
+	TextureShaderClass *m_TextureShader;
+
+	BitmapClass* m_Bitmap;
 };
