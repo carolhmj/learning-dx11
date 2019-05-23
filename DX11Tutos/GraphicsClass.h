@@ -6,6 +6,7 @@
 #include "CameraClass.h"
 #include "TextureShaderClass.h"
 #include "BitmapClass.h"
+#include "TextClass.h"
 
 
 /////////////
@@ -37,6 +38,8 @@ private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
 	TextureShaderClass *m_TextureShader;
+	FontShaderClass *m_FontShader;
 
 	BitmapClass* m_Bitmap;
+	TextClass* m_Text;
 };

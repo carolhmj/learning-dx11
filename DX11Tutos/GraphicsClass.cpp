@@ -7,6 +7,7 @@ GraphicsClass::GraphicsClass()
 	m_Camera = nullptr;
 	m_TextureShader = nullptr;
 	m_Bitmap = nullptr;
+	m_Text = nullptr;
 }
 
 
@@ -23,7 +24,7 @@ GraphicsClass::~GraphicsClass()
 bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 {
 	bool result;
-
+	XMMATRIX baseViewMatrix;
 
 	// Create the Direct3D object.
 	m_Direct3D = new D3DClass;
@@ -46,6 +47,11 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	{
 		return false;
 	}
+
+	// Initialize a base view matrix with the camera for 2D user interface rendering.
+	m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
+	m_Camera->Render();
+	m_Camera->GetViewMatrix(baseViewMatrix);
 
 	// Set the initial position of the camera.
 	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
@@ -80,12 +86,49 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	// Create the font shader object.
+	m_FontShader = new FontShaderClass;
+	if (!m_FontShader)
+	{
+		return false;
+	}
+
+	// Initialize the font shader object.
+	result = m_FontShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+
+	// Create the text object.
+	m_Text = new TextClass;
+	if (!m_Text)
+	{
+		return false;
+	}
+
+	// Initialize the text object.
+	result = m_Text->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 
 
 void GraphicsClass::Shutdown()
 {
+	if (m_Text) {
+		m_Text->Shutdown();
+		delete m_Text;
+		m_Text = 0;
+	}
+
 	// Release the bitmap object.
 	if (m_Bitmap)
 	{
@@ -175,8 +218,19 @@ bool GraphicsClass::Render(float rotation)
 		return false;
 	}
 	
+	m_Direct3D->TurnOnAlphaBlending();
+
+	result = m_Text->Render(m_Direct3D->GetDeviceContext(), worldMatrix, orthoMatrix);
+	if (!result) {
+		return false;
+	}
+
+	m_Direct3D->TurnOffAlphaBlending();
+
 	//turn the z-buffer back on
 	m_Direct3D->TurnZBufferOn();
+
+
 
 	m_Direct3D->EndScene();
 

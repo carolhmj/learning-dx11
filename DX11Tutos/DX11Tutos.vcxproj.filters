@@ -54,6 +54,15 @@
     <ClCompile Include="BitmapClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FontClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FontShaderClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SystemClass.h">
@@ -92,6 +101,15 @@
     <ClInclude Include="BitmapClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FontClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FontShaderClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11Tutos.rc">
@@ -103,6 +121,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="textureshader.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="fontshader.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="fontshader.vs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
