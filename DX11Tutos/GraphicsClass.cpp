@@ -6,8 +6,12 @@ GraphicsClass::GraphicsClass()
 	m_Direct3D = nullptr;
 	m_Camera = nullptr;
 	m_TextureShader = nullptr;
+	m_LightShader = nullptr;
+	m_FontShader = nullptr;
 	m_Bitmap = nullptr;
 	m_Text = nullptr;
+	m_Light = nullptr;
+	m_Model = nullptr;
 }
 
 
@@ -117,12 +121,71 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	// Create the model object.
+	m_Model = new ModelClass;
+	if (!m_Model)
+	{
+		return false;
+	}
+
+	// Initialize the model object.
+	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), (char*)"cube.txt", (char*)"owl.tga");
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+		return false;
+	}
+
+	m_LightShader = new LightShaderClass;
+	if (!m_LightShader) {
+		return false;
+	}
+
+	result = m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if (!result) {
+		MessageBox(hwnd, L"Could not initialize the light shader object", L"Error", MB_OK);
+		return false;
+	}
+
+	m_Light = new LightClass;
+	if (!m_Light) {
+		return false;
+	}
+
+	// Initialize the light object.
+	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+	m_Light->SetSpecularPower(32.0f);
+
 	return true;
 }
 
 
 void GraphicsClass::Shutdown()
 {
+	if (m_Model) 
+	{
+		m_Model->Shutdown();
+		delete m_Model;
+		m_Model = 0;
+	}
+
+	if (m_Light)
+	{
+		delete m_Light;
+		m_Light = 0;
+	}
+
+	// Release the light shader object.
+	if (m_LightShader)
+	{
+		m_LightShader->Shutdown();
+		delete m_LightShader;
+		m_LightShader = 0;
+	}
+
 	if (m_Text) {
 		m_Text->Shutdown();
 		delete m_Text;
@@ -230,7 +293,14 @@ bool GraphicsClass::Render(float rotation)
 	//turn the z-buffer back on
 	m_Direct3D->TurnZBufferOn();
 
+	worldMatrix = XMMatrixRotationY(rotation);
 
+	m_Model->Render(m_Direct3D->GetDeviceContext());
+
+	// Render the model using the light shader.
+	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_Model->GetTexture(), m_Light->GetAmbientColor(), m_Light->GetDirection(), m_Light->GetDiffuseColor(),
+		m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
 
 	m_Direct3D->EndScene();
 

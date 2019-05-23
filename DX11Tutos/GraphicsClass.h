@@ -7,6 +7,9 @@
 #include "TextureShaderClass.h"
 #include "BitmapClass.h"
 #include "TextClass.h"
+#include "LightShaderClass.h"
+#include "LightClass.h"
+#include "ModelClass.h"
 
 
 /////////////
@@ -39,6 +42,9 @@ private:
 	CameraClass* m_Camera;
 	TextureShaderClass *m_TextureShader;
 	FontShaderClass *m_FontShader;
+	LightShaderClass *m_LightShader;
+	LightClass *m_Light;
+	ModelClass *m_Model;
 
 	BitmapClass* m_Bitmap;
 	TextClass* m_Text;
