@@ -33,10 +33,68 @@ bool SystemClass::initialize() {
 	if (!result) {
 		return false;
 	}
+
+	// Create the fps object.
+	m_Fps = new FpsClass;
+	if (!m_Fps)
+	{
+		return false;
+	}
+
+	// Initialize the fps object.
+	m_Fps->Initialize();
+
+	// Create the cpu object.
+	m_Cpu = new CpuClass;
+	if (!m_Cpu)
+	{
+		return false;
+	}
+
+	// Initialize the cpu object.
+	m_Cpu->Initialize();
+
+	// Create the timer object.
+	m_Timer = new TimerClass;
+	if (!m_Timer)
+	{
+		return false;
+	}
+
+	// Initialize the timer object.
+	result = m_Timer->Initialize();
+	if (!result)
+	{
+		MessageBox(m_hwnd, L"Could not initialize the Timer object.", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 
 void SystemClass::shutdown() {
+	// Release the timer object.
+	if (m_Timer)
+	{
+		delete m_Timer;
+		m_Timer = 0;
+	}
+
+	// Release the cpu object.
+	if (m_Cpu)
+	{
+		m_Cpu->Shutdown();
+		delete m_Cpu;
+		m_Cpu = 0;
+	}
+
+	// Release the fps object.
+	if (m_Fps)
+	{
+		delete m_Fps;
+		m_Fps = 0;
+	}
+
 	if (m_graphics) {
 		m_graphics->Shutdown();
 		delete m_graphics;
@@ -79,11 +137,16 @@ void SystemClass::run() {
 bool SystemClass::frame() {
 	bool result;
 
+	// Update the system stats.
+	m_Timer->Frame();
+	m_Fps->Frame();
+	m_Cpu->Frame();
+
 	//Check if user pressed esc
 	if (m_input->IsKeyDown(VK_ESCAPE)) {
 		return false;
 	}
-	result = m_graphics->Frame();
+	result = m_graphics->Frame(m_Fps->GetFps(), m_Cpu->GetCpuPercentage(), m_Timer->GetTime());
 	if (!result) {
 		return false;
 	}

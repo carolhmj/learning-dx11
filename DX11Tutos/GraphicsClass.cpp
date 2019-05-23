@@ -226,10 +226,24 @@ void GraphicsClass::Shutdown()
 }
 
 
-bool GraphicsClass::Frame()
+bool GraphicsClass::Frame(int fps, int cpu, float frameTime)
 {
 	bool result;
 	static float rotation = 0.0f;
+
+	// Set the frames per second.
+	result = m_Text->SetFps(fps, m_Direct3D->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
+
+	// Set the cpu usage.
+	result = m_Text->SetCpu(cpu, m_Direct3D->GetDeviceContext());
+	if (!result)
+	{
+		return false;
+	}
 
 	//update rotation each frame
 	rotation += XM_PI * 0.005f;
