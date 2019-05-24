@@ -14,6 +14,7 @@ GraphicsClass::GraphicsClass()
 	m_Model = nullptr;
 	m_MultiTextureShader = nullptr;
 	m_AlphaMapShader = nullptr;
+	m_BumpMapShader = nullptr;
 }
 
 
@@ -131,7 +132,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "cube.txt", { "owl.tga", "stone01.tga", "palisadefencealpha2.tga" });
+	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "cube.txt", {"stone01.tga", "owl.tga"});
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -192,12 +193,35 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
+	// Create the bump map shader object.
+	m_BumpMapShader = new BumpMapShaderClass;
+	if (!m_BumpMapShader)
+	{
+		return false;
+	}
+
+	// Initialize the bump map shader object.
+	result = m_BumpMapShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bump map shader object.", L"Error", MB_OK);
+		return false;
+	}
+
 	return true;
 }
 
 
 void GraphicsClass::Shutdown()
-{
+{	
+	// Release the bump map shader object.
+	if (m_BumpMapShader)
+	{
+		m_BumpMapShader->Shutdown();
+		delete m_BumpMapShader;
+		m_BumpMapShader = 0;
+	}
+
 	// Release the alpha map shader object.
 	if (m_AlphaMapShader)
 	{
@@ -359,7 +383,7 @@ bool GraphicsClass::Render(float rotation)
 
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 
-	m_AlphaMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextures(), 3);
+	m_BumpMapShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextures(), m_Light->GetDirection(), m_Light->GetDiffuseColor());
 
 	m_Direct3D->EndScene();
 

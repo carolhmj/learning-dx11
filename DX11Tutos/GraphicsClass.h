@@ -12,6 +12,7 @@
 #include "ModelClass.h"
 #include "MultiTextureShaderClass.h"
 #include "AlphaMapShaderClass.h"
+#include "BumpMapShaderClass.h"
 
 
 /////////////
@@ -53,4 +54,5 @@ private:
 
 	MultiTextureShaderClass* m_MultiTextureShader;
 	AlphaMapShaderClass* m_AlphaMapShader;
+	BumpMapShaderClass* m_BumpMapShader;
 };
