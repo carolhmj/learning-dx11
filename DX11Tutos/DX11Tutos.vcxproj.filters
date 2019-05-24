@@ -72,6 +72,12 @@
     <ClCompile Include="TimerClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MultiTextureShaderClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureArrayClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SystemClass.h">
@@ -128,6 +134,15 @@
     <ClInclude Include="TimerClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FrustumClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiTextureShaderClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureArrayClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11Tutos.rc">
@@ -145,6 +160,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="fontshader.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="multitexture.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="multitexture.ps">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -147,7 +147,9 @@
     <ClCompile Include="FontShaderClass.cpp" />
     <ClCompile Include="FpsClass.cpp" />
     <ClCompile Include="LightClass.cpp" />
+    <ClCompile Include="MultiTextureShaderClass.cpp" />
     <ClCompile Include="TextClass.cpp" />
+    <ClCompile Include="TextureArrayClass.cpp" />
     <ClCompile Include="TextureClass.cpp" />
     <ClCompile Include="LightShaderClass.cpp" />
     <ClCompile Include="D3DClass.cpp" />
@@ -166,8 +168,11 @@
     <ClInclude Include="FontClass.h" />
     <ClInclude Include="FontShaderClass.h" />
     <ClInclude Include="FpsClass.h" />
+    <ClInclude Include="FrustumClass.h" />
     <ClInclude Include="LightClass.h" />
+    <ClInclude Include="MultiTextureShaderClass.h" />
     <ClInclude Include="TextClass.h" />
+    <ClInclude Include="TextureArrayClass.h" />
     <ClInclude Include="TextureClass.h" />
     <ClInclude Include="LightShaderClass.h" />
     <ClInclude Include="D3DClass.h" />
@@ -210,6 +215,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="fontshader.vs">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="multitexture.ps">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="multitexture.vs">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>

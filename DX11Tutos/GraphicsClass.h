@@ -10,6 +10,7 @@
 #include "LightShaderClass.h"
 #include "LightClass.h"
 #include "ModelClass.h"
+#include "MultiTextureShaderClass.h"
 
 
 /////////////
@@ -48,4 +49,6 @@ private:
 
 	BitmapClass* m_Bitmap;
 	TextClass* m_Text;
+
+	MultiTextureShaderClass* m_MultiTextureShader;
 };

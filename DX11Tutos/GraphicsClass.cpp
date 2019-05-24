@@ -12,6 +12,7 @@ GraphicsClass::GraphicsClass()
 	m_Text = nullptr;
 	m_Light = nullptr;
 	m_Model = nullptr;
+	m_MultiTextureShader = nullptr;
 }
 
 
@@ -129,12 +130,28 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	// Initialize the model object.
-	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), (char*)"cube.txt", (char*)"owl.tga");
+	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), (char*)"cube.txt", (char*)"owl.tga", (char*)"stone01.tga");
 	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
 		return false;
 	}
+
+	// Create the multitexture shader object.
+	m_MultiTextureShader = new MultiTextureShaderClass;
+	if (!m_MultiTextureShader)
+	{
+		return false;
+	}
+
+	// Initialize the multitexture shader object.
+	result = m_MultiTextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the multitexture shader object.", L"Error", MB_OK);
+		return false;
+	}
+
 
 	m_LightShader = new LightShaderClass;
 	if (!m_LightShader) {
@@ -165,6 +182,13 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void GraphicsClass::Shutdown()
 {
+	if (m_MultiTextureShader) {
+		m_MultiTextureShader->Shutdown();
+		delete m_MultiTextureShader;
+		m_MultiTextureShader = 0;
+
+	}
+
 	if (m_Model) 
 	{
 		m_Model->Shutdown();
@@ -284,16 +308,16 @@ bool GraphicsClass::Render(float rotation)
 	//Turn z-Buffer off for 2D rendering
 	m_Direct3D->TurnZBufferOff();
 
-	result = m_Bitmap->Render(m_Direct3D->GetDeviceContext(), 0, 0);
-	if (!result) {
-		return false;
-	}
+	//result = m_Bitmap->Render(m_Direct3D->GetDeviceContext(), 0, 0);
+	//if (!result) {
+	//	return false;
+	//}
 
-	//render the bitmap with texture shader
-	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
-	if (!result) {
-		return false;
-	}
+	////render the bitmap with texture shader
+	//result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
+	//if (!result) {
+	//	return false;
+	//}
 	
 	m_Direct3D->TurnOnAlphaBlending();
 
@@ -312,9 +336,11 @@ bool GraphicsClass::Render(float rotation)
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 
 	// Render the model using the light shader.
-	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Model->GetTexture(), m_Light->GetAmbientColor(), m_Light->GetDirection(), m_Light->GetDiffuseColor(),
-		m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+/*	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_Model->GetTextures()[0], m_Light->GetAmbientColor(), m_Light->GetDirection(), m_Light->GetDiffuseColor(),
+		m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());*/
+
+	m_MultiTextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextures());
 
 	m_Direct3D->EndScene();
 

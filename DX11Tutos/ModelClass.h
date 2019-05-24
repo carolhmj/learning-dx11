@@ -3,7 +3,7 @@
 #include <DirectXMath.h>
 #include <fstream>
 
-#include "TextureClass.h"
+#include "TextureArrayClass.h"
 
 using namespace DirectX;
 using namespace std;
@@ -15,18 +15,18 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, const char*, const char*);
+	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, const char*, const char*, const char*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
 	int GetIndexCount();
-	ID3D11ShaderResourceView* GetTexture();
+	ID3D11ShaderResourceView** GetTextures();
 
 private:
 	bool InitializeBuffers(ID3D11Device*);
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
-	bool LoadTexture(ID3D11Device*, ID3D11DeviceContext*, const char*);
+	bool LoadTexture(ID3D11Device*, ID3D11DeviceContext*, const char*, const char*);
 	void ReleaseTexture();
 
 	bool LoadModel(const char*);
@@ -47,7 +47,7 @@ private:
 
 	ID3D11Buffer *m_vertexBuffer, *m_indexBuffer;
 	int m_vertexCount, m_indexCount;
-	TextureClass* m_Texture;
+	TextureArrayClass* m_TextureArray;
 	ModelType* m_model;
 };
 
