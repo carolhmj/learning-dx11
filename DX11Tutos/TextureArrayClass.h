@@ -2,6 +2,7 @@
 
 #include <d3d11.h>
 #include <fstream>
+#include <vector>
 
 class TextureArrayClass
 {
@@ -20,7 +21,7 @@ public:
 	TextureArrayClass(const TextureArrayClass&);
 	~TextureArrayClass();
 
-	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, const char*, const char*);
+	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, std::vector<const char*>);
 	void Shutdown();
 
 	ID3D11ShaderResourceView** GetTextureArray();
@@ -30,6 +31,6 @@ private:
 	bool LoadTarga(const char*, int&, int&);
 	unsigned char* m_targaData;
 	ID3D11Texture2D* m_texture;
-	ID3D11ShaderResourceView* m_textures[2];
+	std::vector<ID3D11ShaderResourceView*> m_textures;
 };
 

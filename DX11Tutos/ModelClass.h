@@ -15,7 +15,7 @@ public:
 	ModelClass(const ModelClass&);
 	~ModelClass();
 
-	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, const char*, const char*, const char*);
+	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, const char*, std::vector<const char*>);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
@@ -26,7 +26,7 @@ private:
 	bool InitializeBuffers(ID3D11Device*);
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
-	bool LoadTexture(ID3D11Device*, ID3D11DeviceContext*, const char*, const char*);
+	bool LoadTexture(ID3D11Device*, ID3D11DeviceContext*, std::vector<const char*>);
 	void ReleaseTexture();
 
 	bool LoadModel(const char*);

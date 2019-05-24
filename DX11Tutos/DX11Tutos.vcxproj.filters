@@ -78,6 +78,9 @@
     <ClCompile Include="TextureArrayClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AlphaMapShaderClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SystemClass.h">
@@ -143,6 +146,9 @@
     <ClInclude Include="TextureArrayClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AlphaMapShaderClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11Tutos.rc">
@@ -166,6 +172,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="multitexture.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="alphamap.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="alphamap.ps">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -11,6 +11,7 @@
 #include "LightClass.h"
 #include "ModelClass.h"
 #include "MultiTextureShaderClass.h"
+#include "AlphaMapShaderClass.h"
 
 
 /////////////
@@ -51,4 +52,5 @@ private:
 	TextClass* m_Text;
 
 	MultiTextureShaderClass* m_MultiTextureShader;
+	AlphaMapShaderClass* m_AlphaMapShader;
 };

@@ -4,6 +4,9 @@
 
 TextureArrayClass::TextureArrayClass()
 {
+	m_targaData = nullptr;
+	m_texture = nullptr;
+	m_textures = {};
 }
 
 TextureArrayClass::TextureArrayClass(const TextureArrayClass &)
@@ -15,18 +18,18 @@ TextureArrayClass::~TextureArrayClass()
 {
 }
 
-bool TextureArrayClass::Initialize(ID3D11Device *device, ID3D11DeviceContext *deviceContext, const char *filename1, const char *filename2)
+bool TextureArrayClass::Initialize(ID3D11Device *device, ID3D11DeviceContext *deviceContext, std::vector<const char*> files)
 {
-	HRESULT result;
+	bool result;
+	ID3D11ShaderResourceView *temp;
 
-	result = InitializeShaderResourceView(device, deviceContext, filename1, &m_textures[0]);
-	if (!result) {
-		return false;
-	}
+	for (const char*& file : files) {
+		result = InitializeShaderResourceView(device, deviceContext, file, &temp);
+		if (!result) {
+			return false;
+		}
 
-	result = InitializeShaderResourceView(device, deviceContext, filename2, &m_textures[1]);
-	if (!result) {
-		return false;
+		m_textures.push_back(std::move(temp));
 	}
 
 	return true;
@@ -34,23 +37,17 @@ bool TextureArrayClass::Initialize(ID3D11Device *device, ID3D11DeviceContext *de
 
 void TextureArrayClass::Shutdown()
 {	// Release the texture resources.
-	if (m_textures[0])
-	{
-		m_textures[0]->Release();
-		m_textures[0] = 0;
+	
+	for (auto texture : m_textures) {
+		texture->Release();
 	}
 
-	if (m_textures[1])
-	{
-		m_textures[1]->Release();
-		m_textures[1] = 0;
-	}
-
+	m_textures.clear();
 }
 
 ID3D11ShaderResourceView ** TextureArrayClass::GetTextureArray()
 {
-	return m_textures;
+	return &m_textures[0];
 }
 
 bool TextureArrayClass::InitializeShaderResourceView(ID3D11Device *device, ID3D11DeviceContext *deviceContext, const char *filename, ID3D11ShaderResourceView ** shaderResourceView)
