@@ -4,18 +4,8 @@
 //////////////
 #include "D3DClass.h"
 #include "CameraClass.h"
-#include "TextureShaderClass.h"
-#include "BitmapClass.h"
-#include "TextClass.h"
-#include "LightShaderClass.h"
-#include "LightClass.h"
 #include "ModelClass.h"
-#include "MultiTextureShaderClass.h"
-#include "AlphaMapShaderClass.h"
-#include "BumpMapShaderClass.h"
-#include "DebugWindowClass.h"
-#include "RenderTextureClass.h"
-
+#include "FogShaderClass.h"
 
 /////////////
 // GLOBALS //
@@ -48,19 +38,6 @@ private:
 private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
-	FontShaderClass *m_FontShader;
-	LightShaderClass *m_LightShader;
-	LightClass *m_Light;
-	ModelClass *m_Model;
-
-	BitmapClass* m_Bitmap;
-	TextClass* m_Text;
-
-	MultiTextureShaderClass* m_MultiTextureShader;
-	AlphaMapShaderClass* m_AlphaMapShader;
-	BumpMapShaderClass* m_BumpMapShader;
-
-	DebugWindowClass* m_DebugWindow;
-	TextureShaderClass* m_TextureShader;
-	RenderTextureClass* m_RenderTexture;
+	ModelClass* m_Model;
+	FogShaderClass* m_FogShader;
 };
