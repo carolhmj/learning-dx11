@@ -13,6 +13,8 @@
 #include "MultiTextureShaderClass.h"
 #include "AlphaMapShaderClass.h"
 #include "BumpMapShaderClass.h"
+#include "DebugWindowClass.h"
+#include "RenderTextureClass.h"
 
 
 /////////////
@@ -36,14 +38,16 @@ public:
 	bool Initialize(int, int, HWND);
 	void Shutdown();
 	bool Frame(int, int, float);
+	bool Render();
 
 private:
 	bool Render(float);
+	bool RenderToTexture();
+	bool RenderScene();
 
 private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
-	TextureShaderClass *m_TextureShader;
 	FontShaderClass *m_FontShader;
 	LightShaderClass *m_LightShader;
 	LightClass *m_Light;
@@ -55,4 +59,8 @@ private:
 	MultiTextureShaderClass* m_MultiTextureShader;
 	AlphaMapShaderClass* m_AlphaMapShader;
 	BumpMapShaderClass* m_BumpMapShader;
+
+	DebugWindowClass* m_DebugWindow;
+	TextureShaderClass* m_TextureShader;
+	RenderTextureClass* m_RenderTexture;
 };

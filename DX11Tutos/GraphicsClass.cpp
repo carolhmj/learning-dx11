@@ -15,6 +15,7 @@ GraphicsClass::GraphicsClass()
 	m_MultiTextureShader = nullptr;
 	m_AlphaMapShader = nullptr;
 	m_BumpMapShader = nullptr;
+	m_TextureShader = nullptr;
 }
 
 
@@ -55,157 +56,90 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// Initialize a base view matrix with the camera for 2D user interface rendering.
-	m_Camera->SetPosition(0.0f, 0.0f, -1.0f);
-	m_Camera->Render();
-	m_Camera->GetViewMatrix(baseViewMatrix);
-
-	// Set the initial position of the camera.
-	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
-
-	// Create the texture shader object.
-	m_TextureShader = new TextureShaderClass;
-	if (!m_TextureShader)
+	//Create the model object
+	m_Camera = new CameraClass;
+	if (!m_Camera)
 	{
 		return false;
 	}
 
-	// Initialize the texture shader object.
-	result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
-		return false;
-	}
+	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
 
-	// Create the bitmap object.
-	m_Bitmap = new BitmapClass;
-	if (!m_Bitmap)
-	{
-		return false;
-	}
-
-	// Initialize the bitmap object.
-	result = m_Bitmap->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), screenWidth, screenHeight, "owl.tga", 256, 256);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
-		return false;
-	}
-
-	// Create the font shader object.
-	m_FontShader = new FontShaderClass;
-	if (!m_FontShader)
-	{
-		return false;
-	}
-
-	// Initialize the font shader object.
-	result = m_FontShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the font shader object.", L"Error", MB_OK);
-		return false;
-	}
-
-
-	// Create the text object.
-	m_Text = new TextClass;
-	if (!m_Text)
-	{
-		return false;
-	}
-
-	// Initialize the text object.
-	result = m_Text->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the text object.", L"Error", MB_OK);
-		return false;
-	}
-
-	// Create the model object.
+	//Create the new model object
 	m_Model = new ModelClass;
-	if (!m_Model)
-	{
+	if (!m_Model) {
 		return false;
 	}
 
-	// Initialize the model object.
-	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "cube.txt", {"stone01.tga", "owl.tga"});
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+	//Initialize the model object
+	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "cube.txt", { "owl.tga" });
+	if (!result) {
+		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
 
-	// Create the multitexture shader object.
-	m_MultiTextureShader = new MultiTextureShaderClass;
-	if (!m_MultiTextureShader)
-	{
-		return false;
-	}
-
-	// Initialize the multitexture shader object.
-	result = m_MultiTextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the multitexture shader object.", L"Error", MB_OK);
-		return false;
-	}
-
-
+	//Create the light shader object
 	m_LightShader = new LightShaderClass;
-	if (!m_LightShader) {
+	if (!m_LightShader)
+	{
 		return false;
 	}
 
+	//Initialize the light shader object
 	result = m_LightShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if (!result) {
 		MessageBox(hwnd, L"Could not initialize the light shader object", L"Error", MB_OK);
 		return false;
 	}
 
+	//Create the light object
 	m_Light = new LightClass;
-	if (!m_Light) {
+	if (!m_Light)
+	{
 		return false;
 	}
 
-	// Initialize the light object.
-	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+	//Initialize the light object
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetDirection(0.0f, 0.0f, 1.0f);
+	m_Light->SetAmbientColor(0.5f, 0.5f, 0.5f, 1.0f);
 	m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light->SetSpecularPower(32.0f);
 
-	// Create the alpha map shader object.
-	m_AlphaMapShader = new AlphaMapShaderClass;
-	if (!m_AlphaMapShader)
-	{
+	//Create the render to texture object
+	m_RenderTexture = new RenderTextureClass;
+	if (!m_RenderTexture) {
 		return false;
 	}
 
-	// Initialize the alpha map shader object.
-	result = m_AlphaMapShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the alpha map shader object.", L"Error", MB_OK);
+	result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
+	if (!result) {
 		return false;
 	}
 
-	// Create the bump map shader object.
-	m_BumpMapShader = new BumpMapShaderClass;
-	if (!m_BumpMapShader)
-	{
+	//Create the debug window object
+	m_DebugWindow = new DebugWindowClass;
+	if (!m_DebugWindow) {
 		return false;
 	}
 
-	// Initialize the bump map shader object.
-	result = m_BumpMapShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-	if (!result)
-	{
-		MessageBox(hwnd, L"Could not initialize the bump map shader object.", L"Error", MB_OK);
+	//Initialize the debug window object
+	result = m_DebugWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, 100, 75);
+	if (!result) {
+		MessageBox(hwnd, L"Could not initialize the debug window object", L"Error", MB_OK);
 		return false;
+	}
+
+	//Create the texture shader object
+	m_TextureShader = new TextureShaderClass;
+	if (!m_TextureShader) {
+		return false;
+	}
+
+	//Initialize the texture shader object
+	result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if (!result) {
+		MessageBox(hwnd, L"Could not initalize the texture shader object", L"Error", MB_OK);
 	}
 
 	return true;
@@ -213,37 +147,32 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 
 void GraphicsClass::Shutdown()
-{	
-	// Release the bump map shader object.
-	if (m_BumpMapShader)
+{
+	// Release the texture shader object.
+	if (m_TextureShader)
 	{
-		m_BumpMapShader->Shutdown();
-		delete m_BumpMapShader;
-		m_BumpMapShader = 0;
+		m_TextureShader->Shutdown();
+		delete m_TextureShader;
+		m_TextureShader = 0;
 	}
 
-	// Release the alpha map shader object.
-	if (m_AlphaMapShader)
+	// Release the debug window object.
+	if (m_DebugWindow)
 	{
-		m_AlphaMapShader->Shutdown();
-		delete m_AlphaMapShader;
-		m_AlphaMapShader = 0;
+		m_DebugWindow->Shutdown();
+		delete m_DebugWindow;
+		m_DebugWindow = 0;
 	}
 
-	if (m_MultiTextureShader) {
-		m_MultiTextureShader->Shutdown();
-		delete m_MultiTextureShader;
-		m_MultiTextureShader = 0;
-
-	}
-
-	if (m_Model) 
+	// Release the render to texture object.
+	if (m_RenderTexture)
 	{
-		m_Model->Shutdown();
-		delete m_Model;
-		m_Model = 0;
+		m_RenderTexture->Shutdown();
+		delete m_RenderTexture;
+		m_RenderTexture = 0;
 	}
 
+	// Release the light object.
 	if (m_Light)
 	{
 		delete m_Light;
@@ -258,26 +187,12 @@ void GraphicsClass::Shutdown()
 		m_LightShader = 0;
 	}
 
-	if (m_Text) {
-		m_Text->Shutdown();
-		delete m_Text;
-		m_Text = 0;
-	}
-
-	// Release the bitmap object.
-	if (m_Bitmap)
+	// Release the model object.
+	if (m_Model)
 	{
-		m_Bitmap->Shutdown();
-		delete m_Bitmap;
-		m_Bitmap = 0;
-	}
-
-	// Release the texture shader object.
-	if (m_TextureShader)
-	{
-		m_TextureShader->Shutdown();
-		delete m_TextureShader;
-		m_TextureShader = 0;
+		m_Model->Shutdown();
+		delete m_Model;
+		m_Model = 0;
 	}
 
 	// Release the camera object.
@@ -294,7 +209,111 @@ void GraphicsClass::Shutdown()
 		delete m_Direct3D;
 		m_Direct3D = 0;
 	}
-	return;
+}
+
+bool GraphicsClass::Render() {
+	XMMATRIX worldMatrix, viewMatrix, orthoMatrix;
+	bool result;
+
+	//Render the entire scene to the texture first
+	result = RenderToTexture();
+	if (!result) {
+		return false;
+	}
+
+	//Clear the buffers to begin the scene
+	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+
+	//Render the scene as normal to the back buffer
+	result = RenderScene();
+	if (!result) {
+		return false;
+	}
+
+	//Turn off the Z buffer to begin 2D rendering
+	m_Direct3D->TurnZBufferOff();
+
+	//Get the world, view and ortho matrices from the camera and d3d objects
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+
+	//Put the debug window vertex and index buffers on the graphics pipeline to prepare them for drawing
+	result = m_DebugWindow->Render(m_Direct3D->GetDeviceContext(), 50, 50);
+	if (!result) {
+		return false;
+	}
+
+	//Render the debug window using the texture shader
+	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_DebugWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView());
+	if (!result) {
+		return false;
+	}
+
+	//Turn the Z buffer back on now
+	m_Direct3D->TurnZBufferOn();
+
+	//Present the rendered scene to the screen
+	m_Direct3D->EndScene();
+
+	return true;
+}
+
+bool GraphicsClass::RenderToTexture() {
+	bool result;
+
+	//Set the render target to be the render to texture
+	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView());
+
+	//Clear the render to texture
+	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView(), 0.0f, 0.0f, 1.0f, 1.0f);
+
+	//Render the scene now and it will draw to the texture instead of the black buffer
+	result = RenderScene();
+	if (!result) {
+		return false;
+	}
+
+	//Reset the render target back to the back buffer
+	m_Direct3D->SetBackBufferRenderTarget();
+
+	return true;
+}
+
+bool GraphicsClass::RenderScene() {
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+	bool result;
+	static float rotation = 0.0f;
+
+	//Generate the view matrix based on the camera's position
+	m_Camera->Render();
+
+	//Get the world, view and projection matrix based on camera's position
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+	//Update the rotation variable each frame
+	rotation += (float)XM_PI * 0.005f;
+	if (rotation > 360.0f) 
+	{
+		rotation -= 360.0f;
+	}
+
+	worldMatrix = XMMatrixRotationY(rotation);
+
+	//Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing
+	m_Model->Render(m_Direct3D->GetDeviceContext());
+
+	//Render the model using the light shader
+	result = m_LightShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextures()[0],
+		m_Light->GetDiffuseColor(), m_Light->GetDirection(), m_Light->GetAmbientColor(), m_Camera->GetPosition(), m_Light->GetSpecularColor(), m_Light->GetSpecularPower());
+
+	if (!result) {
+		return false;
+	}
+
+	return true;
 }
 
 
