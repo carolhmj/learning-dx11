@@ -53,7 +53,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+	//m_Camera->SetPosition(0.0f, 0.0f, -8.0f);
 
 	//Create the new model object
 	m_Model = new ModelClass;
@@ -117,6 +117,12 @@ void GraphicsClass::Shutdown()
 	}
 }
 
+bool GraphicsClass::Frame()
+{
+	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
+	return true;
+}
+
 bool GraphicsClass::Render() {
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
@@ -127,7 +133,7 @@ bool GraphicsClass::Render() {
 	fogColor = 0.5f;
 
 	//Set start and end of fog
-	fogStart = -5.0f;
+	fogStart = 0.0f;
 	fogEnd = 10.0f;
 
 	//Clear the buffers to begin the scene

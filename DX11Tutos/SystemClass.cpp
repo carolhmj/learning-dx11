@@ -146,7 +146,12 @@ bool SystemClass::frame() {
 	if (m_input->IsKeyDown(VK_ESCAPE)) {
 		return false;
 	}
-	//result = m_graphics->Frame(m_Fps->GetFps(), m_Cpu->GetCpuPercentage(), m_Timer->GetTime());
+
+	result = m_graphics->Frame();
+	if (!result) {
+		return false;
+	}
+
 	result = m_graphics->Render();
 	if (!result) {
 		return false;

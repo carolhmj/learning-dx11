@@ -228,6 +228,9 @@
     <None Include="fog.ps">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="fogexp.vs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="lightshader.ps">

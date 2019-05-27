@@ -27,13 +27,8 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(int, int, float);
+	bool Frame();
 	bool Render();
-
-private:
-	bool Render(float);
-	bool RenderToTexture();
-	bool RenderScene();
 
 private:
 	D3DClass* m_Direct3D;
