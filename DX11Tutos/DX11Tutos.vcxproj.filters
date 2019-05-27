@@ -90,6 +90,9 @@
     <ClCompile Include="DebugWindowClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SpecialShaderClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SystemClass.h">
@@ -167,6 +170,9 @@
     <ClInclude Include="DebugWindowClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SpecialShaderClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11Tutos.rc">
@@ -202,6 +208,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="bumpmap.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="specialeffects.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="specialeffects.ps">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

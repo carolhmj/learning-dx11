@@ -124,7 +124,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	//Initialize the debug window object
-	result = m_DebugWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, 100, 75);
+	result = m_DebugWindow->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight, 200, 150);
 	if (!result) {
 		MessageBox(hwnd, L"Could not initialize the debug window object", L"Error", MB_OK);
 		return false;
@@ -142,12 +142,30 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		MessageBox(hwnd, L"Could not initalize the texture shader object", L"Error", MB_OK);
 	}
 
+	//Create the special shader object
+	m_SpecialShader = new SpecialShaderClass;
+	if (!m_SpecialShader) {
+		return false;
+	}
+
+	//Initialize the special shader object
+	result = m_SpecialShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if (!result) {
+		MessageBox(hwnd, L"Could not initialize the special shader object", L"Error", MB_OK);
+	}
+
 	return true;
 }
 
 
 void GraphicsClass::Shutdown()
 {
+	if (m_SpecialShader) {
+		m_SpecialShader->Shutdown();
+		delete m_SpecialShader;
+		m_SpecialShader = 0;
+	}
+
 	// Release the texture shader object.
 	if (m_TextureShader)
 	{
@@ -245,7 +263,8 @@ bool GraphicsClass::Render() {
 	}
 
 	//Render the debug window using the texture shader
-	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_DebugWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView());
+	//result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_DebugWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView());
+	result = m_SpecialShader->Render(m_Direct3D->GetDeviceContext(), m_DebugWindow->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_RenderTexture->GetShaderResourceView());
 	if (!result) {
 		return false;
 	}
@@ -262,6 +281,11 @@ bool GraphicsClass::Render() {
 bool GraphicsClass::RenderToTexture() {
 	bool result;
 
+	XMFLOAT3 oldPos = m_Camera->GetPosition();
+
+	m_Camera->SetPosition(1.0f, 1.0f, -10.0f);
+	m_Camera->SetRotation(0.3f, 0.3f, 0.0f);
+
 	//Set the render target to be the render to texture
 	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView());
 
@@ -276,6 +300,9 @@ bool GraphicsClass::RenderToTexture() {
 
 	//Reset the render target back to the back buffer
 	m_Direct3D->SetBackBufferRenderTarget();
+
+	m_Camera->SetPosition(oldPos.x, oldPos.y, oldPos.z);
+	m_Camera->SetRotation(0.0f, 0.0f, 0.0f);
 
 	return true;
 }

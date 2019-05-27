@@ -15,7 +15,7 @@
 #include "BumpMapShaderClass.h"
 #include "DebugWindowClass.h"
 #include "RenderTextureClass.h"
-
+#include "SpecialShaderClass.h"
 
 /////////////
 // GLOBALS //
@@ -63,4 +63,5 @@ private:
 	DebugWindowClass* m_DebugWindow;
 	TextureShaderClass* m_TextureShader;
 	RenderTextureClass* m_RenderTexture;
+	SpecialShaderClass* m_SpecialShader;
 };
