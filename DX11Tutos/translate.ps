@@ -25,6 +25,7 @@ float4 TranslatePixelShader(PixelInputType input) : SV_TARGET
 {
     // Translate the position where we sample the pixel from.
     input.tex.x += textureTranslation;
+	input.tex.y += textureTranslation;
 
     return shaderTexture.Sample(SampleType, input.tex);
 }
