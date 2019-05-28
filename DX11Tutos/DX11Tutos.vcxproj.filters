@@ -99,6 +99,9 @@
     <ClCompile Include="ClipPlaneShaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TranslateShaderClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SystemClass.h">
@@ -185,6 +188,9 @@
     <ClInclude Include="ClipPlaneShaderClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TranslateShaderClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11Tutos.rc">
@@ -238,6 +244,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="clipplane.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="translate.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="translate.ps">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

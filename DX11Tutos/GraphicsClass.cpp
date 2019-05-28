@@ -6,7 +6,7 @@ GraphicsClass::GraphicsClass()
 	m_Direct3D = nullptr;
 	m_Camera = nullptr;
 	m_Model = nullptr;
-	m_ClipPlaneShader = nullptr;
+	m_TranslateShader = nullptr;
 }
 
 
@@ -53,7 +53,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	m_Camera->SetPosition(0.0f, 2.0f, -10.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 
 	//Create the new model object
 	m_Model = new ModelClass;
@@ -68,18 +68,18 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// Create the clip plane shader object.
-	m_ClipPlaneShader = new ClipPlaneShaderClass;
-	if (!m_ClipPlaneShader)
+	// Create the texture translation shader object.
+	m_TranslateShader = new TranslateShaderClass;
+	if (!m_TranslateShader)
 	{
 		return false;
 	}
 
-	// Initialize the clip plane shader object.
-	result = m_ClipPlaneShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	// Initialize the texture translation shader object.
+	result = m_TranslateShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the clip plane shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the texture translation shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -89,12 +89,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void GraphicsClass::Shutdown()
 {
-	// Release the clip plane shader object.
-	if (m_ClipPlaneShader)
+	// Release the texture translation shader object.
+	if (m_TranslateShader)
 	{
-		m_ClipPlaneShader->Shutdown();
-		delete m_ClipPlaneShader;
-		m_ClipPlaneShader = 0;
+		m_TranslateShader->Shutdown();
+		delete m_TranslateShader;
+		m_TranslateShader = 0;
 	}
 
 	// Release the model object.
@@ -125,14 +125,12 @@ bool GraphicsClass::Render() {
 	XMFLOAT4 clipPlane;
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
-	static float angle = 0.0f;
+	static float textureTranslation = 0.0f;
 
-	angle += XM_PI * 0.005;
-
-	if (angle > 360.0f) angle -= 360.0f;
-
-	//Setup a clipping plane 
-	clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f);
+	textureTranslation += 0.01f;
+	if (textureTranslation > 1.0f) {
+		textureTranslation -= 1.0f;
+	}
 
 	//Clear the buffers to begin the scene
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -144,12 +142,10 @@ bool GraphicsClass::Render() {
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	worldMatrix = XMMatrixRotationY(angle);
-
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 
-	result = m_ClipPlaneShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Model->GetTextures()[0], clipPlane);
+	result = m_TranslateShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_Model->GetTextures()[0], textureTranslation);
 	if (!result) {
 		return false;
 	}
