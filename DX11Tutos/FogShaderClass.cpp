@@ -24,7 +24,7 @@ bool FogShaderClass::Initialize(ID3D11Device* device, HWND hwnd)
 {
 	bool result;
 	// Initialize the vertex and pixel shaders.
-	result = InitializeShader(device, hwnd, (WCHAR*)L"fogexp.vs", (WCHAR*)L"fog.ps");
+	result = InitializeShader(device, hwnd, (WCHAR*)L"fogexp2.vs", (WCHAR*)L"fog.ps");
 	if (!result)
 	{
 		return false;
