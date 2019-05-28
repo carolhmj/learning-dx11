@@ -6,7 +6,7 @@ GraphicsClass::GraphicsClass()
 	m_Direct3D = nullptr;
 	m_Camera = nullptr;
 	m_Model = nullptr;
-	m_FogShader = nullptr;
+	m_ClipPlaneShader = nullptr;
 }
 
 
@@ -53,7 +53,7 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera->SetPosition(0.0f, 2.0f, -10.0f);
 
 	//Create the new model object
 	m_Model = new ModelClass;
@@ -62,22 +62,25 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	//Initialize the model object
-	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "cube.txt", { "owl.tga" });
+	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "cube.txt", { "stone01.tga" });
 	if (!result) {
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
 
-	//Create the fog shader object
-	m_FogShader = new FogShaderClass;
-	if (!m_FogShader) {
+	// Create the clip plane shader object.
+	m_ClipPlaneShader = new ClipPlaneShaderClass;
+	if (!m_ClipPlaneShader)
+	{
 		return false;
 	}
 
-	//Initialize
-	result = m_FogShader->Initialize(m_Direct3D->GetDevice(), hwnd);
-	if (!result) {
-		MessageBox(hwnd, L"Could not initialize the fog shader object", L"Error", MB_OK);
+	// Initialize the clip plane shader object.
+	result = m_ClipPlaneShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the clip plane shader object.", L"Error", MB_OK);
+		return false;
 	}
 
 	return true;
@@ -86,11 +89,12 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void GraphicsClass::Shutdown()
 {
-	//Release the fog shader object
-	if (m_FogShader) {
-		m_FogShader->Shutdown();
-		delete m_FogShader;
-		m_FogShader = 0;
+	// Release the clip plane shader object.
+	if (m_ClipPlaneShader)
+	{
+		m_ClipPlaneShader->Shutdown();
+		delete m_ClipPlaneShader;
+		m_ClipPlaneShader = 0;
 	}
 
 	// Release the model object.
@@ -118,20 +122,20 @@ void GraphicsClass::Shutdown()
 }
 
 bool GraphicsClass::Render() {
+	XMFLOAT4 clipPlane;
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
-	static float rotation = 0.0f;
-	float fogColor, fogStart, fogEnd;
+	static float angle = 0.0f;
 
-	//Set the color of the fog to gray
-	fogColor = 0.5f;
+	angle += XM_PI * 0.005;
 
-	//Set start and end of fog
-	fogStart = -5.0f;
-	fogEnd = 10.0f;
+	if (angle > 360.0f) angle -= 360.0f;
+
+	//Setup a clipping plane 
+	clipPlane = XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f);
 
 	//Clear the buffers to begin the scene
-	m_Direct3D->BeginScene(fogColor, fogColor, fogColor, 1.0f);
+	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 	
 	m_Camera->Render();
 
@@ -140,18 +144,15 @@ bool GraphicsClass::Render() {
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Direct3D->GetProjectionMatrix(projectionMatrix);
 
-	//Update the rotation variable each frame
-	rotation += (float)XM_PI * 0.005f;
-	if (rotation > 360.0f)
-	{
-		rotation -= 360.0f;
-	}
-
-	worldMatrix = XMMatrixRotationY(rotation);
+	worldMatrix = XMMatrixRotationY(angle);
 
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 
-	result = m_FogShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextures()[0], fogStart, fogEnd);
+	result = m_ClipPlaneShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_Model->GetTextures()[0], clipPlane);
+	if (!result) {
+		return false;
+	}
 
 	//Present the rendered scene to the screen
 	m_Direct3D->EndScene();
