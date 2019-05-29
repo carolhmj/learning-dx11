@@ -168,6 +168,7 @@
     <ClCompile Include="TextureShaderClass.cpp" />
     <ClCompile Include="TimerClass.cpp" />
     <ClCompile Include="TranslateShaderClass.cpp" />
+    <ClCompile Include="TransparentShaderClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AlphaMapShaderClass.h" />
@@ -199,6 +200,7 @@
     <ClInclude Include="TextureShaderClass.h" />
     <ClInclude Include="TimerClass.h" />
     <ClInclude Include="TranslateShaderClass.h" />
+    <ClInclude Include="TransparentShaderClass.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11Tutos.rc" />
@@ -292,6 +294,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="translate.vs">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="transparent.ps">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="transparent.vs">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>

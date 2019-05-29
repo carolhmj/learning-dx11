@@ -5,7 +5,8 @@
 #include "D3DClass.h"
 #include "CameraClass.h"
 #include "ModelClass.h"
-#include "TranslateShaderClass.h"
+#include "TextureShaderClass.h"
+#include "TransparentShaderClass.h"
 
 /////////////
 // GLOBALS //
@@ -27,7 +28,7 @@ public:
 
 	bool Initialize(int, int, HWND);
 	void Shutdown();
-	bool Frame(int, int, float);
+	bool Frame();
 	bool Render();
 
 private:
@@ -39,5 +40,7 @@ private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
 	ModelClass* m_Model;
-	TranslateShaderClass* m_TranslateShader;
+	ModelClass* m_Model2;
+	TextureShaderClass* m_TextureShader;
+	TransparentShaderClass* m_TransparentShader;
 };

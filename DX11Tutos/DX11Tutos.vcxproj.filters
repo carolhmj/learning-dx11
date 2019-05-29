@@ -102,6 +102,9 @@
     <ClCompile Include="TranslateShaderClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TransparentShaderClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SystemClass.h">
@@ -191,6 +194,9 @@
     <ClInclude Include="TranslateShaderClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TransparentShaderClass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DX11Tutos.rc">
@@ -250,6 +256,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="translate.ps">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="transparent.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="transparent.ps">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

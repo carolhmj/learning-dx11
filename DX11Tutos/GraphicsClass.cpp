@@ -1,12 +1,13 @@
 #include "graphicsclass.h"
-
+#include <math.h>
 
 GraphicsClass::GraphicsClass()
 {
 	m_Direct3D = nullptr;
 	m_Camera = nullptr;
 	m_Model = nullptr;
-	m_TranslateShader = nullptr;
+	m_TextureShader = 0;
+	m_TransparentShader = 0;
 }
 
 
@@ -62,24 +63,52 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	//Initialize the model object
-	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "cube.txt", { "stone01.tga" });
+	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "square.txt", { "stone01.tga" });
 	if (!result) {
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
 
-	// Create the texture translation shader object.
-	m_TranslateShader = new TranslateShaderClass;
-	if (!m_TranslateShader)
+	//Create the second model object
+	m_Model2 = new ModelClass;
+	if (!m_Model2) {
+		return false;
+	}
+
+	//Initialize the second model object
+	result = m_Model2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "square.txt", { "owl.tga" });
+	if (!result) {
+		MessageBox(hwnd, L"Could not initialize the second model object", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the texture shader object.
+	m_TextureShader = new TextureShaderClass;
+	if (!m_TextureShader)
 	{
 		return false;
 	}
 
-	// Initialize the texture translation shader object.
-	result = m_TranslateShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	// Initialize the texture shader object.
+	result = m_TextureShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the texture translation shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the texture shader object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the transparent shader object.
+	m_TransparentShader = new TransparentShaderClass;
+	if (!m_TransparentShader)
+	{
+		return false;
+	}
+
+	// Initialize the transparent shader object.
+	result = m_TransparentShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the transparent shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -89,12 +118,28 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void GraphicsClass::Shutdown()
 {
-	// Release the texture translation shader object.
-	if (m_TranslateShader)
+	// Release the transparent shader object.
+	if (m_TransparentShader)
 	{
-		m_TranslateShader->Shutdown();
-		delete m_TranslateShader;
-		m_TranslateShader = 0;
+		m_TransparentShader->Shutdown();
+		delete m_TransparentShader;
+		m_TransparentShader = 0;
+	}
+
+	// Release the texture shader object.
+	if (m_TextureShader)
+	{
+		m_TextureShader->Shutdown();
+		delete m_TextureShader;
+		m_TextureShader = 0;
+	}
+
+	// Release the second model object.
+	if (m_Model2)
+	{
+		m_Model2->Shutdown();
+		delete m_Model2;
+		m_Model2 = 0;
 	}
 
 	// Release the model object.
@@ -121,16 +166,31 @@ void GraphicsClass::Shutdown()
 	}
 }
 
+bool GraphicsClass::Frame()
+{
+	// Set the position of the camera.
+	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+
+	return true;
+}
+
 bool GraphicsClass::Render() {
-	XMFLOAT4 clipPlane;
 	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
-	static float textureTranslation = 0.0f;
+	static float blendAmount = 0.0f;
+	static float inc = true;
 
-	textureTranslation += 0.01f;
-	if (textureTranslation > 1.0f) {
-		textureTranslation -= 1.0f;
+	if (inc) {
+		blendAmount += XM_PI * 0.005f;
 	}
+	else {
+		blendAmount -= XM_PI * 0.005f;
+	}
+
+	if (blendAmount > XM_PI / 2) inc = false;
+	if (blendAmount < 0) inc = true;
+
+	float blendValue = XMScalarSin(blendAmount);
 
 	//Clear the buffers to begin the scene
 	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -144,11 +204,23 @@ bool GraphicsClass::Render() {
 
 	m_Model->Render(m_Direct3D->GetDeviceContext());
 
-	result = m_TranslateShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Model->GetTextures()[0], textureTranslation);
+	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
+		m_Model->GetTextures()[0]);
 	if (!result) {
 		return false;
 	}
+
+	//Translate the second object to the right and towards the camera
+	worldMatrix = XMMatrixTranslation(1.0f, 0.0f, -1.0f) * worldMatrix;
+
+	//Turn on alpha blending for the transparency to work
+	m_Direct3D->TurnOnAlphaBlending();
+
+	//Put the second model in the graphics pipeline
+	m_Model2->Render(m_Direct3D->GetDeviceContext());
+
+	//Render the second square model on the graphics pipeline
+	result = m_TransparentShader->Render(m_Direct3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model2->GetTextures()[0], blendValue);
 
 	//Present the rendered scene to the screen
 	m_Direct3D->EndScene();
