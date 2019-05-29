@@ -6,7 +6,8 @@
 #include "CameraClass.h"
 #include "ModelClass.h"
 #include "TextureShaderClass.h"
-#include "TransparentShaderClass.h"
+#include "rendertextureclass.h"
+#include "ReflectionShaderClass.h"
 
 /////////////
 // GLOBALS //
@@ -32,7 +33,6 @@ public:
 	bool Render();
 
 private:
-	bool Render(float);
 	bool RenderToTexture();
 	bool RenderScene();
 
@@ -40,7 +40,9 @@ private:
 	D3DClass* m_Direct3D;
 	CameraClass* m_Camera;
 	ModelClass* m_Model;
-	ModelClass* m_Model2;
+	ModelClass* m_FloorModel;
+	ModelClass* m_FloorModel2;
 	TextureShaderClass* m_TextureShader;
-	TransparentShaderClass* m_TransparentShader;
+	RenderTextureClass* m_RenderTexture;
+	ReflectionShaderClass* m_ReflectionShader;
 };

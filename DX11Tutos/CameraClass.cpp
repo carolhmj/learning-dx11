@@ -106,3 +106,95 @@ void CameraClass::GetViewMatrix(XMMATRIX& viewMatrix)
 	viewMatrix = m_viewMatrix;
 	return;
 }
+
+void CameraClass::RenderReflection(float height)
+{
+	XMFLOAT3 up, position, lookAt;
+	XMVECTOR upVector, positionVector, lookAtVector;
+	float radians;
+
+	//Set up the vector that points upwards
+	up.x = 0.0f;
+	up.y = 1.0f;
+	up.z = 0.0f;
+
+	upVector = XMLoadFloat3(&up);
+
+	//Set up the position of the camera in the world
+	//For planar reflection invert the Y position of the camera
+	position.x = m_positionX;
+	position.y = -m_positionY + (height * 2.0f);
+	position.z = m_positionZ;
+
+	positionVector = XMLoadFloat3(&position);
+
+	// Calculate the rotation in radians.
+	radians = m_rotationY * 0.0174532925f;
+
+	// Setup where the camera is looking.
+	lookAt.x = sinf(radians) + m_positionX;
+	lookAt.y = position.y;
+	lookAt.z = cosf(radians) + m_positionZ;
+
+	lookAtVector = XMLoadFloat3(&lookAt);
+
+	m_reflectionViewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
+}
+
+void CameraClass::RenderHorizontalReflection(float distance)
+{
+	XMFLOAT3 up, position, lookAt, cameraRegularPosition;
+	XMVECTOR upVector, positionVector, lookAtVector, cameraRegularPositionVector;
+	float pitch, yaw, roll;
+	XMMATRIX rotationMatrix;
+
+	//Set up the vector that points upwards
+	up.x = 0.0f;
+	up.y = 1.0f;
+	up.z = 0.0f;
+
+	upVector = XMLoadFloat3(&up);
+
+	//Set up the position of the camera in the world
+	position.x = 2 * distance + m_positionX;
+	position.y = m_positionY;
+	position.z = m_positionZ;
+
+	cameraRegularPosition.x = m_positionX;
+	cameraRegularPosition.y = m_positionY;
+	cameraRegularPosition.z = m_positionZ;
+
+	cameraRegularPositionVector = XMLoadFloat3(&cameraRegularPosition);
+
+	lookAt.x = 0.0f;
+	lookAt.y = 0.0f;
+	lookAt.z = 1.0f;
+
+	// Load it into a XMVECTOR structure.
+	lookAtVector = XMLoadFloat3(&lookAt);
+
+	// Set the yaw (Y axis), pitch (X axis), and roll (Z axis) rotations in radians.
+	pitch = m_rotationX * 0.0174532925f;
+	yaw = m_rotationY * 0.0174532925f;
+	roll = m_rotationZ * 0.0174532925f;
+
+	// Create the rotation matrix from the yaw, pitch, and roll values.
+	rotationMatrix = XMMatrixRotationRollPitchYaw(pitch, yaw, roll);
+
+	// Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
+	lookAtVector = XMVector3TransformCoord(lookAtVector, rotationMatrix);
+	upVector = XMVector3TransformCoord(upVector, rotationMatrix);
+
+	// Translate the rotated camera position to the location of the viewer.
+	lookAtVector = XMVectorAdd(cameraRegularPositionVector, lookAtVector);
+
+	lookAtVector = XMLoadFloat3(&lookAt);
+
+	m_reflectionViewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
+
+}
+
+void CameraClass::GetReflectionViewMatrix(XMMATRIX& reflectionViewMatrix)
+{
+	reflectionViewMatrix = m_reflectionViewMatrix;
+}

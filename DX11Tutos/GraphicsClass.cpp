@@ -7,7 +7,9 @@ GraphicsClass::GraphicsClass()
 	m_Camera = nullptr;
 	m_Model = nullptr;
 	m_TextureShader = 0;
-	m_TransparentShader = 0;
+	m_RenderTexture = 0;
+	m_FloorModel = 0;
+	m_ReflectionShader = 0;
 }
 
 
@@ -63,22 +65,53 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 	}
 
 	//Initialize the model object
-	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "square.txt", { "stone01.tga" });
+	result = m_Model->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "cube.txt", { "stone01.tga" });
 	if (!result) {
 		MessageBox(hwnd, L"Could not initialize the model object", L"Error", MB_OK);
 		return false;
 	}
 
-	//Create the second model object
-	m_Model2 = new ModelClass;
-	if (!m_Model2) {
+	// Create the render to texture object.
+	m_RenderTexture = new RenderTextureClass;
+	if (!m_RenderTexture)
+	{
 		return false;
 	}
 
-	//Initialize the second model object
-	result = m_Model2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "square.txt", { "owl.tga" });
-	if (!result) {
-		MessageBox(hwnd, L"Could not initialize the second model object", L"Error", MB_OK);
+	// Initialize the render to texture object.
+	result = m_RenderTexture->Initialize(m_Direct3D->GetDevice(), screenWidth, screenHeight);
+	if (!result)
+	{
+		return false;
+	}
+
+	// Create the floor model object.
+	m_FloorModel = new ModelClass;
+	if (!m_FloorModel)
+	{
+		return false;
+	}
+
+	// Initialize the floor model object.
+	result = m_FloorModel->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "floor.txt", { "owl.tga" });
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the floor model object.", L"Error", MB_OK);
+		return false;
+	}
+
+	// Create the second floor model object.
+	m_FloorModel2 = new ModelClass;
+	if (!m_FloorModel2)
+	{
+		return false;
+	}
+
+	// Initialize the floor model object.
+	result = m_FloorModel2->Initialize(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), "floor.txt", { "owl.tga" });
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the floor model 2 object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -97,18 +130,18 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 		return false;
 	}
 
-	// Create the transparent shader object.
-	m_TransparentShader = new TransparentShaderClass;
-	if (!m_TransparentShader)
+	// Create the reflection shader object.
+	m_ReflectionShader = new ReflectionShaderClass;
+	if (!m_ReflectionShader)
 	{
 		return false;
 	}
 
-	// Initialize the transparent shader object.
-	result = m_TransparentShader->Initialize(m_Direct3D->GetDevice(), hwnd);
+	// Initialize the reflection shader object.
+	result = m_ReflectionShader->Initialize(m_Direct3D->GetDevice(), hwnd);
 	if (!result)
 	{
-		MessageBox(hwnd, L"Could not initialize the transparent shader object.", L"Error", MB_OK);
+		MessageBox(hwnd, L"Could not initialize the reflection shader object.", L"Error", MB_OK);
 		return false;
 	}
 
@@ -118,12 +151,28 @@ bool GraphicsClass::Initialize(int screenWidth, int screenHeight, HWND hwnd)
 
 void GraphicsClass::Shutdown()
 {
-	// Release the transparent shader object.
-	if (m_TransparentShader)
+	// Release the reflection shader object.
+	if (m_ReflectionShader)
 	{
-		m_TransparentShader->Shutdown();
-		delete m_TransparentShader;
-		m_TransparentShader = 0;
+		m_ReflectionShader->Shutdown();
+		delete m_ReflectionShader;
+		m_ReflectionShader = 0;
+	}
+
+	// Release the floor model object.
+	if (m_FloorModel)
+	{
+		m_FloorModel->Shutdown();
+		delete m_FloorModel;
+		m_FloorModel = 0;
+	}
+
+	// Release the render to texture object.
+	if (m_RenderTexture)
+	{
+		m_RenderTexture->Shutdown();
+		delete m_RenderTexture;
+		m_RenderTexture = 0;
 	}
 
 	// Release the texture shader object.
@@ -132,14 +181,6 @@ void GraphicsClass::Shutdown()
 		m_TextureShader->Shutdown();
 		delete m_TextureShader;
 		m_TextureShader = 0;
-	}
-
-	// Release the second model object.
-	if (m_Model2)
-	{
-		m_Model2->Shutdown();
-		delete m_Model2;
-		m_Model2 = 0;
 	}
 
 	// Release the model object.
@@ -169,58 +210,169 @@ void GraphicsClass::Shutdown()
 bool GraphicsClass::Frame()
 {
 	// Set the position of the camera.
-	m_Camera->SetPosition(0.0f, 0.0f, -5.0f);
+	m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
 
 	return true;
 }
 
 bool GraphicsClass::Render() {
-	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
 	bool result;
-	static float blendAmount = 0.0f;
-	static float inc = true;
-
-	if (inc) {
-		blendAmount += XM_PI * 0.005f;
-	}
-	else {
-		blendAmount -= XM_PI * 0.005f;
-	}
-
-	if (blendAmount > XM_PI / 2) inc = false;
-	if (blendAmount < 0) inc = true;
-
-	float blendValue = XMScalarSin(blendAmount);
-
-	//Clear the buffers to begin the scene
-	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 	
-	m_Camera->Render();
-
-	//Get the world, view and projection matrix based on camera's position
-	m_Direct3D->GetWorldMatrix(worldMatrix);
-	m_Camera->GetViewMatrix(viewMatrix);
-	m_Direct3D->GetProjectionMatrix(projectionMatrix);
-
-	m_Model->Render(m_Direct3D->GetDeviceContext());
-
-	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix,
-		m_Model->GetTextures()[0]);
+	//Render the entire scene as a reflection to a texture first
+	result = RenderToTexture();
 	if (!result) {
 		return false;
 	}
 
-	//Translate the second object to the right and towards the camera
-	worldMatrix = XMMatrixTranslation(1.0f, 0.0f, -1.0f) * worldMatrix;
+	// Render the scene as normal to the back buffer.
+	result = RenderScene();
+	if (!result)
+	{
+		return false;
+	}
 
-	//Turn on alpha blending for the transparency to work
-	m_Direct3D->TurnOnAlphaBlending();
+	return true;
+}
 
-	//Put the second model in the graphics pipeline
-	m_Model2->Render(m_Direct3D->GetDeviceContext());
+bool GraphicsClass::RenderToTexture() {
+	XMMATRIX worldMatrix, reflectionViewMatrix, projectionMatrix;
+	static float rotation = 0.0f;
 
-	//Render the second square model on the graphics pipeline
-	result = m_TransparentShader->Render(m_Direct3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model2->GetTextures()[0], blendValue);
+	//Set the render target to be the render to texture
+	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView());
+
+	//Clear the render to texture
+	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
+
+	//Use the camera to calculate the reflection matrix
+	m_Camera->RenderReflection(-1.5f);
+
+	//Get the camera reflection view matrix instead of the normal view matrix
+	m_Camera->GetReflectionViewMatrix(reflectionViewMatrix);
+
+	//Get the world and projection matrices
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+	//Update the rotation variable each frame
+	rotation += XM_PI * 0.005f;
+	if (rotation > 360.0f) {
+		rotation -= 360.0f;
+	}
+
+	worldMatrix = XMMatrixRotationY(rotation) * worldMatrix;
+
+	//Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing
+	m_Model->Render(m_Direct3D->GetDeviceContext());
+
+	//Render the model using the texture shader and the reflection view matrix
+	m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, reflectionViewMatrix, projectionMatrix, m_Model->GetTextures()[0]);
+
+	//Reset the render target back to the original back buffer
+	m_Direct3D->SetBackBufferRenderTarget();
+
+	return true;
+}
+
+bool GraphicsClass::RenderToTexture2() {
+	XMMATRIX worldMatrix, reflectionViewMatrix, projectionMatrix;
+	static float rotation = 0.0f;
+
+	//Set the render target to be the render to texture
+	m_RenderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView());
+
+	//Clear the render to texture
+	m_RenderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), m_Direct3D->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
+
+	//Use the camera to calculate the reflection matrix
+	m_Camera->RenderHorizontalReflection(-1.5f);
+
+	//Get the camera reflection view matrix instead of the normal view matrix
+	m_Camera->GetReflectionViewMatrix(reflectionViewMatrix);
+
+	//Get the world and projection matrices
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+	//Update the rotation variable each frame
+	rotation += XM_PI * 0.005f;
+	if (rotation > 360.0f) {
+		rotation -= 360.0f;
+	}
+
+	worldMatrix = XMMatrixRotationY(rotation) * worldMatrix;
+
+	//Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing
+	m_Model->Render(m_Direct3D->GetDeviceContext());
+
+	//Render the model using the texture shader and the reflection view matrix
+	m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, reflectionViewMatrix, projectionMatrix, m_Model->GetTextures()[0]);
+
+	//Reset the render target back to the original back buffer
+	m_Direct3D->SetBackBufferRenderTarget();
+
+	return true;
+}
+
+bool GraphicsClass::RenderScene() {
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, reflectionMatrix;
+
+	bool result;
+	static float rotation = 0.0f;
+
+	//Clear the buffers to begin the scene
+	m_Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+
+	//Generate the view matrix based on the camera's position
+	m_Camera->Render();
+
+	//Get the world, view and projection matrices from the camera and d3d objects
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+	//Update the rotation variable each frame
+	rotation += XM_PI * 0.005f;
+	if (rotation > 360.0f) {
+		rotation -= 360.0f;
+	}
+
+	//Multiply the world matrix by the rotation
+	worldMatrix = XMMatrixRotationY(rotation) * worldMatrix;
+
+	//Put the model vertex and index buffers on the graphics pipeline
+	m_Model->Render(m_Direct3D->GetDeviceContext());
+
+	//Render the model with the texture shader
+	result = m_TextureShader->Render(m_Direct3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTextures()[0]);
+	if (!result) {
+		return false;
+	}
+
+	//Get the world matrix and translate down for the floor model
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	worldMatrix = XMMatrixTranslation(0.0f, -1.5f, 0.0f) * worldMatrix;
+
+	//Get the camera reflection view matrix
+	m_Camera->GetReflectionViewMatrix(reflectionMatrix);
+
+	//Put the floor model vertex and index buffers on the graphics pipeline to prepare them for drawing
+	m_FloorModel->Render(m_Direct3D->GetDeviceContext());
+
+	//Render the floor model using the reflection shader, reflection texture and reflection view matrix
+	result = m_ReflectionShader->Render(m_Direct3D->GetDeviceContext(), m_FloorModel->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, 
+		m_FloorModel->GetTextures()[0], m_RenderTexture->GetShaderResourceView(), reflectionMatrix);
+
+	//Get the world matrix and rotate and translate for the floor model 2
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	worldMatrix = XMMatrixTranslation(1.5f, 0.0f, 0.0f) * worldMatrix;
+
+	m_Camera->Get
+
+	m_FloorModel2->Render(m_Direct3D->GetDeviceContext());
+	//Render the floor model
+	result = m_ReflectionShader->Render(m_Direct3D->GetDeviceContext(), m_FloorModel2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_FloorModel2->GetTextures()[0],
+		m_RenderTexture->GetShaderResourceView(), reflectionMatrix);
 
 	//Present the rendered scene to the screen
 	m_Direct3D->EndScene();
